@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Эгрегоры и отработанные триады</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+            line-height: 1.6;
+        }
+        .notebook {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        .tabs-container {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        .tabs {
+            display: flex;
+            gap: 5px;
+            flex-wrap: wrap;
+        }
+        .tab {
+            padding: 10px 15px;
+            background: #e0e0e0;
+            border-radius: 5px 5px 0 0;
+            cursor: pointer;
+            border: none;
+            position: relative;
+        }
+        .tab.active {
+            background: #4CAF50;
+            color: white;
+        }
+        .tab-edit {
+            background: none;
+            border: none;
+            cursor: pointer;
+            margin-left: 5px;
+            font-size: 12px;
+            opacity: 0.5;
+        }
+        .tab:hover .tab-edit {
+            opacity: 1;
+        }
+        .add-tab-btn {
+            background: #2196F3;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .sphere-content {
+            display: none;
+            border: 2px solid #4CAF50;
+            border-radius: 0 5px 5px 5px;
+            padding: 15px;
+            min-height: 200px;
+        }
+        .sphere-content.active {
+            display: block;
+        }
+        .add-form {
+            margin-top: 15px;
+            display: flex;
+            gap: 10px;
+        }
+        .add-input {
+            flex-grow: 1;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .add-btn {
+            background: #2196F3;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .triad-list {
+            margin-top: 15px;
+        }
+        .triad-item {
+            background: #f9f9f9;
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 5px;
+            border-left: 3px solid #4CAF50;
+        }
+        .triad-number {
+            background: #4CAF50;
+            color: white;
+            border-radius: 50%;
+            width: 25px;
+            height: 25px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 10px;
+            font-weight: bold;
+        }
+        .counter {
+            font-size: 14px;
+            color: #666;
+            margin-top: 10px;
+            font-weight: bold;
+        }
+        .stats {
+            margin-top: 30px;
+            padding: 15px;
+            background: #e8f5e8;
+            border-radius: 5px;
+        }
+        .edit-modal {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+            z-index: 1000;
+        }
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 999;
+        }
+    </style>
+</head>
+<body>
+    <div class="notebook">
+        <h2>🧠 Эгрегоры и отработанные триады</h2>
+        
+        <div class="tabs-container">
+            <div class="tabs" id="tabs">
+                <button class="tab active" onclick="showSphere('money')">
+                    💰 Деньги
+                    <button class="tab-edit" onclick="editSphere('money')">✏️</button>
+                </button>
+                <button class="tab" onclick="showSphere('relationship')">
+                    💑 Отношения
+                    <button class="tab-edit" onclick="editSphere('relationship')">✏️</button>
+                </button>
+                <button class="tab" onclick="showSphere('work')">
+                    💼 Самореализация
+                    <button class="tab-edit" onclick="editSphere('work')">✏️</button>
+                </button>
+                <button class="tab" onclick="showSphere('development')">
+                    📚 Саморазвитие
+                    <button class="tab-edit" onclick="editSphere('development')">✏️</button>
+                </button>
+                <button class="tab" onclick="showSphere('body')">
+                    💪 Тело
+                    <button class="tab-edit" onclick="editSphere('body')">✏️</button>
+                </button>
+            </div>
+            <button class="add-tab-btn" onclick="showAddSphereModal()">+</button>
+        </div>
+
+        <!-- Содержимое сфер -->
+        <div id="money" class="sphere-content active">
+            <h3>💰 Деньги</h3>
+            <div class="add-form">
+                <input class="add-input" id="money-input" placeholder="Вставьте триаду (например: ✅ Я, Долги, Высокий доход)">
+                <button class="add-btn" onclick="addTriad('money')">+ Добавить</button>
+            </div>
+            <div class="triad-list" id="money-list"></div>
+            <div class="counter" id="money-counter">Отработано триад: 0</div>
+        </div>
+
+        <div id="relationship" class="sphere-content">
+            <h3>💑 Отношения с мужчиной</h3>
+            <div class="add-form">
+                <input class="add-input" id="relationship-input" placeholder="Вставьте триаду">
+                <button class="add-btn" onclick="addTriad('relationship')">+ Добавить</button>
+            </div>
+            <div class="triad-list" id="relationship-list"></div>
+            <div class="counter" id="relationship-counter">Отработано триад: 0</div>
+        </div>
+
+        <div id="work" class="sphere-content">
+            <h3>💼 Самореализация (работа)</h3>
+            <div class="add-form">
+                <input class="add-input" id="work-input" placeholder="Вставьте триаду">
+                <button class="add-btn" onclick="addTriad('work')">+ Добавить</button>
+            </div>
+            <div class="triad-list" id="work-list"></div>
+            <div class="counter" id="work-counter">Отработано триад: 0</div>
+        </div>
+
+        <div id="development" class="sphere-content">
+            <h3>📚 Саморазвитие</h3>
+            <div class="add-form">
+                <input class="add-input" id="development-input" placeholder="Вставьте триаду">
+                <button class="add-btn" onclick="addTriad('development')">+ Добавить</button>
+            </div>
+            <div class="triad-list" id="development-list"></div>
+            <div class="counter" id="development-counter">Отработано триад: 0</div>
+        </div>
+
+        <div id="body" class="sphere-content">
+            <h3>💪 Тело</h3>
+            <div class="add-form">
+                <input class="add-input" id="body-input" placeholder="Вставьте триаду">
+                <button class="add-btn" onclick="addTriad('body')">+ Добавить</button>
+            </div>
+            <div class="triad-list" id="body-list"></div>
+            <div class="counter" id="body-counter">Отработано триад: 0</div>
+        </div>
+
+        <div class="stats">
+            <h3>📊 Общая статистика</h3>
+            <div class="counter" id="total-counter">Всего отработано триад: 0</div>
+        </div>
+    </div>
+
+    <!-- Модальное окно добавления/редактирования -->
+    <div class="modal-overlay" id="modalOverlay" onclick="closeModal()"></div>
+    <div class="edit-modal" id="editModal">
+        <h3 id="modalTitle">Добавить новую сферу</h3>
+        <input type="text" id="sphereNameInput" placeholder="Название сферы" style="width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ddd; border-radius: 5px;">
+        <input type="text" id="sphereEmojiInput" placeholder="Эмодзи (например: 💰)" style="width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ddd; border-radius: 5px;">
+        <div style="display: flex; gap: 10px; margin-top: 15px;">
+            <button onclick="saveSphere()" style="background: #4CAF50; color: white; border: none; padding: 10px 15px; border-radius: 5px; cursor: pointer;">Сохранить</button>
+            <button onclick="closeModal()" style="background: #ccc; color: black; border: none; padding: 10px 15px; border-radius: 5px; cursor: pointer;">Отмена</button>
+            <button id="deleteBtn" onclick="deleteSphere()" style="background: #f44336; color: white; border: none; padding: 10px 15px; border-radius: 5px; cursor: pointer; display: none;">Удалить</button>
+        </div>
+    </div>
+
+    <script>
+        let spheres = {
+            money: { name: 'Деньги', emoji: '💰', items: [] },
+            relationship: { name: 'Отношения', emoji: '💑', items: [] },
+            work: { name: 'Самореализация', emoji: '💼', items: [] },
+            development: { name: 'Саморазвитие', emoji: '📚', items: [] },
+            body: { name: 'Тело', emoji: '💪', items: [] }
+        };
+
+        let currentEditingSphere = null;
+
+        function loadData() {
+            const saved = localStorage.getItem('karpman-spheres');
+            if (saved) {
+                spheres = JSON.parse(saved);
+                renderTabs();
+                updateAllLists();
+            }
+        }
+
+        function saveData() {
+            localStorage.setItem('karpman-spheres', JSON.stringify(spheres));
+        }
+
+        function renderTabs() {
+            const tabsContainer = document.getElementById('tabs');
+            tabsContainer.innerHTML = '';
+            
+            Object.entries(spheres).forEach(([id, sphere]) => {
+                const tab = document.createElement('button');
+                tab.className = 'tab';
+                tab.innerHTML = `${sphere.emoji} ${sphere.name} <button class="tab-edit" onclick="editSphere('${id}')">✏️</button>`;
+                tab.onclick = () => showSphere(id);
+                tabsContainer.appendChild(tab);
+            });
+        }
+
+        function showSphere(sphereId) {
+            document.querySelectorAll('.sphere-content').forEach(el => el.style.display = 'none');
+            document.querySelectorAll('.tab').forEach(el => el.classList.remove('active'));
+            document.getElementById(sphereId).style.display = 'block';
+            document.querySelector(`.tab[onclick="showSphere('${sphereId}')"]`).classList.add('active');
+        }
+
+        function addTriad(sphere) {
+            const input = document.getElementById(`${sphere}-input`);
+            const text = input.value.trim();
+            
+            if (text) {
+                spheres[sphere].items.push({
+                    text: text,
+                    date: new Date().toLocaleDateString()
+                });
+                input.value = '';
+                updateList(sphere);
+                saveData();
+                updateTotal();
+            }
+        }
+
+        function updateList(sphere) {
+            const list = document.getElementById(`${sphere}-list`);
+            const counter = document.getElementById(`${sphere}-counter`);
+            
+            list.innerHTML = spheres[sphere].items.map((triad, index) => `
+                <div class="triad-item">
+                    <span class="triad-number">${index + 1}</span>
+                    <strong>${triad.text}</strong>
+                    <div style="font-size: 12px; color: #666; margin-top: 5px;">
+                        Добавлено: ${triad.date}
+                    </div>
+                </div>
+            `).join('');
+            
+            counter.textContent = `Отработано триад: ${spheres[sphere].items.length}`;
+        }
+
+        function updateAllLists() {
+            Object.keys(spheres).forEach(id => {
+                updateList(id);
+                // Создаем контейнеры для новых сфер, если их нет
+                if (!document.getElementById(id)) {
+                    createSphereContent(id);
+                }
+            });
+            updateTotal();
+        }
+
+        function createSphereContent(id) {
+            const content = document.createElement('div');
+            content.id = id;
+            content.className = 'sphere-content';
+            content.innerHTML = `
+                <h3>${spheres[id].emoji} ${spheres[id].name}</h3>
+                <div class="add-form">
+                    <input class="add-input" id="${id}-input" placeholder="Вставьте триаду">
+                    <button class="add-btn" onclick="addTriad('${id}')">+ Добавить</button>
+                </div>
+                <div class="triad-list" id="${id}-list"></div>
+                <div class="counter" id="${id}-counter">Отработано триад: 0</div>
+            `;
+            document.querySelector('.notebook').insertBefore(content, document.querySelector('.stats'));
+        }
+
+        function updateTotal() {
+            const total = Object.values(spheres).reduce((sum, sphere) => sum + sphere.items.length, 0);
+            document.getElementById('total-counter').textContent = `Всего отработано триад: ${total}`;
+        }
+
+        function showAddSphereModal() {
+            currentEditingSphere = null;
+            document.getElementById('modalTitle').textContent = 'Добавить новую сферу';
+            document.getElementById('sphereNameInput').value = '';
+            document.getElementById('sphereEmojiInput').value = '';
+            document.getElementById('deleteBtn').style.display = 'none';
+            document.getElementById('modalOverlay').style.display = 'block';
+            document.getElementById('editModal').style.display = 'block';
+        }
+
+        function editSphere(sphereId) {
+            currentEditingSphere = sphereId;
+            const sphere = spheres[sphereId];
+            document.getElementById('modalTitle').textContent = 'Редактировать сферу';
+            document.getElementById('sphereNameInput').value = sphere.name;
+            document.getElementById('sphereEmojiInput').value = sphere.emoji;
+            document.getElementById('deleteBtn').style.display = 'block';
+            document.getElementById('modalOverlay').style.display = 'block';
+            document.getElementById('editModal').style.display = 'block';
+        }
+
+        function saveSphere() {
+            const name = document.getElementById('sphereNameInput').value.trim();
+            const emoji = document.getElementById('sphereEmojiInput').value.trim();
+            
+            if (name && emoji) {
+                if (currentEditingSphere) {
+                    // Редактирование существующей
+                    spheres[currentEditingSphere].name = name;
+                    spheres[currentEditingSphere].emoji = emoji;
+                } else {
+                    // Добавление новой
+                    const newId = 'sphere' + Date.now();
+                    spheres[newId] = { name, emoji, items: [] };
+                    createSphereContent(newId);
+                }
+                
+                renderTabs();
+                saveData();
+                closeModal();
+            }
+        }
+
+        function deleteSphere() {
+            if (currentEditingSphere && confirm('Удалить эту сферу и все её триады?')) {
+                delete spheres[currentEditingSphere];
+                const content = document.getElementById(currentEditingSphere);
+                if (content) content.remove();
+                renderTabs();
+                saveData();
+                closeModal();
+            }
+        }
+
+        function closeModal() {
+            document.getElementById('modalOverlay').style.display = 'none';
+            document.getElementById('editModal').style.display = 'none';
+        }
+
+        // Инициализация
+        window.onload = function() {
+            loadData();
+            showSphere('money');
+        };
+    </script>
+</body>
+</html>

@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Сферы жизни - органайзер задач и целей</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+        body {
+            font-family: Arial, sans-serif;
+            margin: 15px;
+            background-color: #f5f5f5;
+            line-height: 1.5;
+        }
+        .organizer {
+            background: white;
+            border-radius: 10px;
+            padding: 15px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            max-width: 100%;
+            margin: 0 auto;
+        }
+        h2 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 1.4em;
+        }
+        .tabs-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 15px;
+            align-items: center;
+        }
+        .tabs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            flex-grow: 1;
+        }
+        .tab {
+            padding: 8px 12px;
+            background: #e0e0e0;
+            border-radius: 6px;
+            cursor: pointer;
+            border: none;
+            font-size: 14px;
+            white-space: nowrap;
+            position: relative;
+        }
+        .tab.active {
+            background: #3498db;
+            color: white;
+        }
+        .tab-edit {
+            background: none;
+            border: none;
+            cursor: pointer;
+            margin-left: 4px;
+            font-size: 11px;
+            opacity: 0.6;
+            padding: 2px;
+        }
+        .add-tab-btn {
+            background: #27ae60;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            white-space: nowrap;
+        }
+        .content {
+            border: 2px solid #3498db;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 15px;
+            min-height: 200px;
+        }
+        .add-task-form {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+        .add-input {
+            flex-grow: 1;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            min-width: 150px;
+            font-size: 14px;
+        }
+        .add-btn {
+            background: #27ae60;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            white-space: nowrap;
+        }
+        .tasks-list {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .task-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            margin: 6px 0;
+            background: #f9f9f9;
+            border-radius: 6px;
+            border-left: 3px solid #3498db;
+            position: relative;
+        }
+        .task-checkbox {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+        .task-text {
+            flex-grow: 1;
+            font-size: 14px;
+        }
+        .task-date {
+            font-size: 11px;
+            color: #666;
+            background: #eee;
+            padding: 3px 6px;
+            border-radius: 3px;
+            white-space: nowrap;
+        }
+        .delete-task-btn {
+            background: none;
+            border: none;
+            color: #e74c3c;
+            cursor: pointer;
+            padding: 4px;
+            font-size: 16px;
+            opacity: 0.6;
+            transition: opacity 0.2s;
+        }
+        .delete-task-btn:hover {
+            opacity: 1;
+        }
+        .stats {
+            background: #e8f4fc;
+            padding: 12px;
+            border-radius: 8px;
+            margin-top: 15px;
+        }
+        .counter {
+            font-size: 14px;
+            color: #2c3e50;
+            margin: 5px 0;
+            font-weight: 500;
+        }
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 999;
+        }
+        .edit-modal {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+            z-index: 1000;
+            width: 90%;
+            max-width: 400px;
+        }
+        .modal-buttons {
+            display: flex;
+            gap: 8px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+        .modal-btn {
+            padding: 8px 12px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .save-btn { background: #27ae60; color: white; }
+        .cancel-btn { background: #95a5a6; color: white; }
+        .delete-btn { background: #e74c3c; color: white; }
+
+        @media (max-width: 480px) {
+            .tab {
+                padding: 6px 8px;
+                font-size: 12px;
+            }
+            .add-tab-btn {
+                padding: 6px 8px;
+                font-size: 12px;
+            }
+            .task-item {
+                flex-wrap: wrap;
+                gap: 5px;
+            }
+            .task-date {
+                font-size: 10px;
+            }
+            .delete-task-btn {
+                position: absolute;
+                top: 5px;
+                right: 5px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="organizer">
+        <h2>🌍 Сферы жизни - органайзер задач и целей</h2>
+        
+        <div class="tabs-container">
+            <div class="tabs" id="tabs">
+                <button class="tab active" onclick="showCategory('home')">
+                    🏠 Мой дом
+                    <button class="tab-edit" onclick="editCategory('home')">✏️</button>
+                </button>
+                <button class="tab" onclick="showCategory('health')">
+                    💪 Тело/энергия/здоровье
+                    <button class="tab-edit" onclick="editCategory('health')">✏️</button>
+                </button>
+                <button class="tab" onclick="showCategory('development')">
+                    🌱 Саморазвитие/трансформация
+                    <button class="tab-edit" onclick="editCategory('development')">✏️</button>
+                </button>
+                <button class="tab" onclick="showCategory('work')">
+                    💼 Самореализация/работа
+                    <button class="tab-edit" onclick="editCategory('work')">✏️</button>
+                </button>
+            </div>
+            <button class="add-tab-btn" onclick="showAddCategoryModal()">+</button>
+        </div>
+
+        <!-- Контент категорий -->
+        <div id="home" class="content" style="display: block;">
+            <h3>🏠 Мой дом</h3>
+            <div class="add-task-form">
+                <input class="add-input" id="home-input" placeholder="Добавить задачу или цель">
+                <button class="add-btn" onclick="addTask('home')">+ Добавить</button>
+            </div>
+            <div class="tasks-list" id="home-list"></div>
+            <div class="counter" id="home-stats"></div>
+        </div>
+
+        <div id="health" class="content">
+            <h3>💪 Тело/энергия/здоровье</h3>
+            <div class="add-task-form">
+                <input class="add-input" id="health-input" placeholder="Добавить задачу или цель">
+                <button class="add-btn" onclick="addTask('health')">+ Добавить</button>
+            </div>
+            <div class="tasks-list" id="health-list"></div>
+            <div class="counter" id="health-stats"></div>
+        </div>
+
+        <div id="development" class="content">
+            <h3>🌱 Саморазвитие/трансформация</h3>
+            <div class="add-task-form">
+                <input class="add-input" id="development-input" placeholder="Добавить задачу или цель">
+                <button class="add-btn" onclick="addTask('development')">+ Добавить</button>
+            </div>
+            <div class="tasks-list" id="development-list"></div>
+            <div class="counter" id="development-stats"></div>
+        </div>
+
+        <div id="work" class="content">
+            <h3>💼 Самореализация/работа</h3>
+            <div class="add-task-form">
+                <input class="add-input" id="work-input" placeholder="Добавить задачу или цель">
+                <button class="add-btn" onclick="addTask('work')">+ Добавить</button>
+            </div>
+            <div class="tasks-list" id="work-list"></div>
+            <div class="counter" id="work-stats"></div>
+        </div>
+
+        <!-- Дополнительные вкладки -->
+        <div class="tabs-container">
+            <div class="tabs">
+                <button class="tab" onclick="showCategory('finance')">
+                    💰 Финансы
+                    <button class="tab-edit" onclick="editCategory('finance')">✏️</button>
+                </button>
+                <button class="tab" onclick="showCategory('society')">
+                    👥 Отношения с социумом
+                    <button class="tab-edit" onclick="editCategory('society')">✏️</button>
+                </button>
+                <button class="tab" onclick="showCategory('relationship')">
+                    💑 Отношения с мужчиной
+                    <button class="tab-edit" onclick="editCategory('relationship')">✏️</button>
+                </button>
+                <button class="tab" onclick="showCategory('appearance')">
+                    👗 Мой образ/внешность
+                    <button class="tab-edit" onclick="editCategory('appearance')">✏️</button>
+                </button>
+            </div>
+        </div>
+
+        <!-- Контент дополнительных категорий -->
+        <div id="finance" class="content">
+            <h3>💰 Финансы</h3>
+            <div class="add-task-form">
+                <input class="add-input" id="finance-input" placeholder="Добавить задачу или цель">
+                <button class="add-btn" onclick="addTask('finance')">+ Добавить</button>
+            </div>
+            <div class="tasks-list" id="finance-list"></div>
+            <div class="counter" id="finance-stats"></div>
+        </div>
+
+        <div id="society" class="content">
+            <h3>👥 Отношения с социумом</h3>
+            <div class="add-task-form">
+                <input class="add-input" id="society-input" placeholder="Добавить задачу или цель">
+                <button class="add-btn" onclick="addTask('society')">+ Добавить</button>
+            </div>
+            <div class="tasks-list" id="society-list"></div>
+            <div class="counter" id="society-stats"></div>
+        </div>
+
+        <div id="relationship" class="content">
+            <h3>💑 Отношения с мужчиной</h3>
+            <div class="add-task-form">
+                <input class="add-input" id="relationship-input" placeholder="Добавить задачу или цель">
+                <button class="add-btn" onclick="addTask('relationship')">+ Добавить</button>
+            </div>
+            <div class="tasks-list" id="relationship-list"></div>
+            <div class="counter" id="relationship-stats"></div>
+        </div>
+
+        <div id="appearance" class="content">
+            <h3>👗 Мой образ/внешность</h3>
+            <div class="add-task-form">
+                <input class="add-input" id="appearance-input" placeholder="Добавить задачу или цель">
+                <button class="add-btn" onclick="addTask('appearance')">+ Добавить</button>
+            </div>
+            <div class="tasks-list" id="appearance-list"></div>
+            <div class="counter" id="appearance-stats"></div>
+        </div>
+
+        <div class="stats">
+            <h3>📊 Общая статистика</h3>
+            <div class="counter" id="total-stats">Всего задач: 0 | Выполнено: 0</div>
+            <div class="counter" id="completion-stats">Процент выполнения: 0%</div>
+        </div>
+    </div>
+
+    <!-- Модальное окно -->
+    <div class="modal-overlay" id="modalOverlay" onclick="closeModal()"></div>
+    <div class="edit-modal" id="editModal">
+        <h3 id="modalTitle">Добавить категорию</h3>
+        <input type="text" id="categoryNameInput" placeholder="Название категории" class="add-input">
+        <input type="text" id="categoryEmojiInput" placeholder="Эмодзи (например: 🏠)" class="add-input">
+        <div class="modal-buttons">
+            <button class="modal-btn save-btn" onclick="saveCategory()">Сохранить</button>
+            <button class="modal-btn cancel-btn" onclick="closeModal()">Отмена</button>
+            <button class="modal-btn delete-btn" onclick="deleteCategory()" id="deleteBtn" style="display: none;">Удалить</button>
+        </div>
+    </div>
+
+    <script>
+        let categories = {
+            home: { name: 'Мой дом', emoji: '🏠', tasks: [] },
+            health: { name: 'Тело/энергия/здоровье', emoji: '💪', tasks: [] },
+            development: { name: 'Саморазвитие/трансформация', emoji: '🌱', tasks: [] },
+            work: { name: 'Самореализация/работа', emoji: '💼', tasks: [] },
+            finance: { name: 'Финансы', emoji: '💰', tasks: [] },
+            society: { name: 'Отношения с социумом', emoji: '👥', tasks: [] },
+            relationship: { name: 'Отношения с мужчиной', emoji: '💑', tasks: [] },
+            appearance: { name: 'Мой образ/внешность', emoji: '👗', tasks: [] }
+        };
+
+        let currentEditingCategory = null;
+
+        function loadData() {
+            const saved = localStorage.getItem('life-spheres-organizer');
+            if (saved) {
+                categories = JSON.parse(saved);
+                renderTabs();
+                updateAllLists();
+            }
+        }
+
+        function saveData() {
+            localStorage.setItem('life-spheres-organizer', JSON.stringify(categories));
+        }
+
+        function renderTabs() {
+            const tabsContainer = document.getElementById('tabs');
+            tabsContainer.innerHTML = '';
+            
+            // Первые 4 основные вкладки
+            const mainCategories = ['home', 'health', 'development', 'work'];
+            mainCategories.forEach(id => {
+                const category = categories[id];
+                const tab = document.createElement('button');
+                tab.className = 'tab';
+                tab.innerHTML = `${category.emoji} ${category.name} <button class="tab-edit" onclick="editCategory('${id}')">✏️</button>`;
+                tab.onclick = () => showCategory(id);
+                tabsContainer.appendChild(tab);
+            });
+        }
+
+        function showCategory(categoryId) {
+            document.querySelectorAll('.content').forEach(el => el.style.display = 'none');
+            document.querySelectorAll('.tab').forEach(el => el.classList.remove('active'));
+            document.getElementById(categoryId).style.display = 'block';
+            
+            // Находим и активируем соответствующую вкладку
+            const tabs = document.querySelectorAll('.tab');
+            tabs.forEach(tab => {
+                if (tab.textContent.includes(categories[categoryId].name)) {
+                    tab.classList.add('active');
+                }
+            });
+        }
+
+        function addTask(category) {
+            const input = document.getElementById(`${category}-input`);
+            const text = input.value.trim();
+            
+            if (text) {
+                categories[category].tasks.push({
+                    text: text,
+                    completed: false,
+                    completedDate: null
+                });
+                input.value = '';
+                updateList(category);
+                saveData();
+                updateStats();
+            }
+        }
+
+        function toggleTask(category, index) {
+            const task = categories[category].tasks[index];
+            task.completed = !task.completed;
+            task.completedDate = task.completed ? new Date().toLocaleDateString() : null;
+            
+            updateList(category);
+            saveData();
+            updateStats();
+        }
+
+        function deleteTask(category, index) {
+            if (confirm('Удалить эту задачу?')) {
+                categories[category].tasks.splice(index, 1);
+                updateList(category);
+                saveData();
+                updateStats();
+            }
+        }
+
+        function updateList(category) {
+            const list = document.getElementById(`${category}-list`);
+            const stats = document.getElementById(`${category}-stats`);
+            
+            list.innerHTML = categories[category].tasks.map((task, index) => `
+                <div class="task-item">
+                    <input type="checkbox" class="task-checkbox" 
+                           ${task.completed ? 'checked' : ''} 
+                           onchange="toggleTask('${category}', ${index})">
+                    <span class="task-text" style="${task.completed ? 'text-decoration: line-through; color: #666;' : ''}">
+                        ${task.text}
+                    </span>
+                    ${task.completedDate ? `<span class="task-date">✓ ${task.completedDate}</span>` : ''}
+                    <button class="delete-task-btn" onclick="deleteTask('${category}', ${index})" title="Удалить задачу">
+                        ✕
+                    </button>
+                </div>
+            `).join('');
+            
+            const total = categories[category].tasks.length;
+            const completed = categories[category].tasks.filter(t => t.completed).length;
+            stats.textContent = `Задач: ${total} | Выполнено: ${completed}`;
+        }
+
+        function updateAllLists() {
+            Object.keys(categories).forEach(updateList);
+            updateStats();
+        }
+
+        function updateStats() {
+            let totalTasks = 0;
+            let completedTasks = 0;
+            
+            Object.values(categories).forEach(category => {
+                totalTasks += category.tasks.length;
+                completedTasks += category.tasks.filter(t => t.completed).length;
+            });
+            
+            const percentage = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
+            
+            document.getElementById('total-stats').textContent = 
+                `Всего задач: ${totalTasks} | Выполнено: ${completedTasks}`;
+            document.getElementById('completion-stats').textContent = 
+                `Процент выполнения: ${percentage}%`;
+        }
+
+        function showAddCategoryModal() {
+            currentEditingCategory = null;
+            document.getElementById('modalTitle').textContent = 'Добавить категорию';
+            document.getElementById('categoryNameInput').value = '';
+            document.getElementById('categoryEmojiInput').value = '';
+            document.getElementById('deleteBtn').style.display = 'none';
+            showModal();
+        }
+
+        function editCategory(categoryId) {
+            currentEditingCategory = categoryId;
+            const category = categories[categoryId];
+            document.getElementById('modalTitle').textContent = 'Редактировать категорию';
+            document.getElementById('categoryNameInput').value = category.name;
+            document.getElementById('categoryEmojiInput').value = category.emoji;
+            document.getElementById('deleteBtn').style.display = 'block';
+            showModal();
+        }
+
+        function saveCategory() {
+            const name = document.getElementById('categoryNameInput').value.trim();
+            const emoji = document.getElementById('categoryEmojiInput').value.trim();
+            
+            if (name && emoji) {
+                if (currentEditingCategory) {
+                    categories[currentEditingCategory].name = name;
+                    categories[currentEditingCategory].emoji = emoji;
+                } else {
+                    const newId = 'cat' + Date.now();
+                    categories[newId] = { name, emoji, tasks: [] };
+                    createCategoryContent(newId);
+                }
+                
+                renderTabs();
+                saveData();
+                closeModal();
+            }
+        }
+
+        function createCategoryContent(categoryId) {
+            const category = categories[categoryId];
+            const content = document.createElement('div');
+            content.id = categoryId;
+            content.className = 'content';
+            content.innerHTML = `
+                <h3>${category.emoji} ${category.name}</h3>
+                <div class="add-task-form">
+                    <input class="add-input" id="${categoryId}-input" placeholder="Добавить задачу или цель">
+                    <button class="add-btn" onclick="addTask('${categoryId}')">+ Добавить</button>
+                </div>
+                <div class="tasks-list" id="${categoryId}-list"></div>
+                <div class="counter" id="${categoryId}-stats"></div>
+            `;
+            document.querySelector('.organizer').insertBefore(content, document.querySelector('.stats'));
+        }
+
+        function deleteCategory() {
+            if (currentEditingCategory && confirm('Удалить эту категорию и все задачи?')) {
+                delete categories[currentEditingCategory];
+                const content = document.getElementById(currentEditingCategory);
+                if (content) content.remove();
+                renderTabs();
+                saveData();
+                closeModal();
+            }
+        }
+
+        function showModal() {
+            document.getElementById('modalOverlay').style.display = 'block';
+            document.getElementById('editModal').style.display = 'block';
+        }
+
+        function closeModal() {
+            document.getElementById('modalOverlay').style.display = 'none';
+            document.getElementById('editModal').style.display = 'none';
+        }
+
+        // Инициализация
+        window.onload = function() {
+            loadData();
+            showCategory('home');
+        };
+    </script>
+</body>
+</html>

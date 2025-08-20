@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ПсихоОрганайзер</title>
+    <meta name="theme-color" content="#3498db">
+    <link rel="manifest" href="manifest.json">
+    <style>
+        * { box-sizing: border-box; }
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+        
+        .app-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+        
+        .app-card {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 20px;
+            border-radius: 20px;
+            text-align: center;
+            text-decoration: none;
+            color: #333;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            transition: transform 0.3s ease;
+        }
+        
+        .app-card:active {
+            transform: scale(0.95);
+        }
+        
+        .app-icon {
+            font-size: 40px;
+            margin-bottom: 10px;
+        }
+        
+        .app-name {
+            font-weight: 600;
+            margin: 0;
+            font-size: 16px;
+        }
+        
+        .app-desc {
+            font-size: 12px;
+            color: #666;
+            margin: 5px 0 0 0;
+        }
+
+        @media (max-width: 480px) {
+            .app-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🧠 ПсихоОрганайзер</h1>
+            <p>Ваши инструменты для саморазвития</p>
+        </div>
+
+        <div class="app-grid">
+            <a href="karpman.html" class="app-card">
+                <div class="app-icon">🔺</div>
+                <h3 class="app-name">Треугольники</h3>
+                <p class="app-desc">Анализ ролевых динамик</p>
+            </a>
+
+            <a href="roles.html" class="app-card">
+                <div class="app-icon">🎭</div>
+                <h3 class="app-name">Роли</h3>
+                <p class="app-desc">Отслеживание проработок</p>
+            </a>
+
+            <a href="spheres.html" class="app-card">
+                <div class="app-icon">🌍</div>
+                <h3 class="app-name">Сферы жизни</h3>
+                <p class="app-desc">Задачи и цели</p>
+            </a>
+
+            <a href="egregores.html" class="app-card">
+                <div class="app-icon">🌀</div>
+                <h3 class="app-name">Эгрегоры</h3>
+                <p class="app-desc">Анализ взаимосвязей</p>
+            </a>
+        </div>
+    </div>
+
+    <script>
+        // Регистрация Service Worker
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('sw.js')
+                .then(() => console.log('SW registered'))
+                .catch(err => console.log('SW error:', err));
+        }
+        
+        // Предотвращение скролла при касании
+        document.addEventListener('touchmove', function(e) {
+            if (e.touches.length > 1) e.preventDefault();
+        }, { passive: false });
+    </script>
+</body>
+</html>

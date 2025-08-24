@@ -4,9 +4,10 @@
   "description": "4 инструмента для психологической работы и саморазвития",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#667eea",
-  "theme_color": "#3498db",
+  "background_color": "#ffffff",
+  "theme_color": "#000000",
   "orientation": "portrait",
+  
   "icons": [
     {
       "src": "icon-192.png",
@@ -15,11 +16,23 @@
       "purpose": "any maskable"
     },
     {
-      "src": "icon-512.png",
+      "src": "icon-512.png", 
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     }
   ],
-  "categories": ["health", "productivity", "education"],
-  "lang": "ru"
+
+  "screenshots": [
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "label": "Главный экран"
+    }
+  ],
+
+  "launch_handler": {
+    "client_mode": "auto"
+  }
 }
